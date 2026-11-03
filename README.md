@@ -2,12 +2,12 @@
 
 Claude-focused token intelligence.
 
-## What’s here
+## Parts
 
-- **Browser extension** (root) – live counter above the Claude composer on claude.ai
-- **Web app** (`web/`) – dark dashboard with Prompt Token Calculator, model selection, optional official Anthropic count, cost estimates
+1. **Browser extension** (repo root) – live token estimate above the Claude composer on claude.ai only
+2. **Web app** (`web/`) – full dashboard: calculator, auto model suggest, file analyzer, optimizer, cost, context, settings
 
-## Web app (quick start)
+## Web app
 
 ```bash
 cd web
@@ -17,19 +17,31 @@ npm run dev
 
 Open http://localhost:3000
 
-## Extension
+### Features that work
 
-Load the root folder (containing `manifest.json`) as an unpacked extension in Chrome.
+- Live / paste prompt token calculator (local estimate)
+- Optional official Anthropic `count_tokens` when you paste your API key
+- **Auto model select** – heuristic suggestion (Haiku / Sonnet / Opus / Fable) from prompt size + keywords
+- File analyzer for plain text family (TXT, MD, CSV, JSON, code, …)
+- Rule-based prompt optimizer (local, approval required)
+- Cost calculator with Nov 2026 list prices
+- Context manager (known tokens only; never assumes hidden = 0)
+- Settings for API key + Admin key (browser localStorage only)
+- Honest Claude Usage page (subscription vs API)
 
-## Honest limitations
+### What does *not* work (and will not fake)
 
-- Local token numbers are **estimates** (chars ÷ 4) unless you supply an Anthropic API key for the official `count_tokens` endpoint.
-- Claude.ai **subscription** usage (Pro/Max bars) is **not** available via a normal API key. The app will not invent a percentage.
-- File analysis, optimizer, analytics, library, etc. are being built next.
+- Reading Claude.ai Pro/Max usage bars via “link account” – Anthropic does not offer this to third-party apps with a normal key
+- Full PDF/DOCX/XLSX/OCR/ZIP parsers (marked partial)
+- Scraping cookies, passwords, or private chat history
 
-## Name
+## Extension install
 
-Prompt Scale – intentionally plain.
+Chrome → `chrome://extensions` → Developer mode → Load unpacked → select this repo root (folder with `manifest.json`).
+
+## Privacy
+
+Keys stay on your device. No Prompt Scale backend. Content script only on `https://claude.ai/*`.
 
 ## License
 
