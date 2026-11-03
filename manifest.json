@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Prompt Scale",
-  "version": "1.0.1",
-  "description": "Shows an estimate of how many tokens your text and files would use on Claude. Works only on claude.ai. Counts locally unless you add your own API key.",
+  "version": "1.0.0",
+  "description": "Token estimate for text you type on claude.ai. Local by default; optional official count with your Anthropic key. Unofficial, not affiliated with Anthropic.",
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
