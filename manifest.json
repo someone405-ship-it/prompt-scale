@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Prompt Scale",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Shows an estimate of how many tokens your text and files would use on Claude. Works only on claude.ai. Counts locally unless you add your own API key.",
   "icons": {
     "16": "icons/icon16.png",
@@ -21,6 +21,7 @@
     "activeTab"
   ],
   "host_permissions": [
+    "https://api.anthropic.com/*",
     "https://claude.ai/*"
   ],
   "content_scripts": [
