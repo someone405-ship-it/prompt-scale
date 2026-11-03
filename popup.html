@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Prompt Scale</title>
+  <style>
+    body {
+      width: 300px;
+      margin: 0;
+      padding: 14px 16px;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      font-size: 13px;
+      color: #141413;
+      background: #faf9f5;
+    }
+    h1 { font-size: 15px; font-weight: 600; margin: 0 0 10px 0; }
+    p { margin: 0 0 10px 0; color: #5e5d59; line-height: 1.4; }
+    label { display: block; margin-top: 12px; font-size: 12px; color: #3d3d3a; }
+    input[type="password"], input[type="text"], select {
+      width: 100%; margin-top: 4px; padding: 6px 8px;
+      border: 1px solid #e3dacc; border-radius: 4px; background: #fff; font-size: 13px;
+    }
+    .row { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
+    button {
+      margin-top: 14px; width: 100%; padding: 8px;
+      border: 1px solid #141413; border-radius: 4px;
+      background: #141413; color: #faf9f5; font-size: 13px; cursor: pointer;
+    }
+    button:hover { opacity: 0.9; }
+    .note { margin-top: 12px; font-size: 11px; color: #87867f; }
+  </style>
+</head>
+<body>
+  <h1>Prompt Scale</h1>
+  <p>Local estimate of tokens for the text you type on claude.ai. Optional official count if you paste your own Anthropic key.</p>
+
+  <label for="model">Model for official count</label>
+  <select id="model">
+    <option value="claude-sonnet-5-5">Sonnet 5.5</option>
+    <option value="claude-opus-5-5">Opus 5.5</option>
+    <option value="claude-haiku-5-5">Haiku 5.5</option>
+    <option value="claude-fable-5-1">Fable 5.1</option>
+  </select>
+
+  <label for="key">Anthropic API key (optional, stored only on this computer)</label>
+  <input type="password" id="key" placeholder="sk-ant-..." autocomplete="off" />
+
+  <div class="row">
+    <input type="checkbox" id="useOfficial" />
+    <label for="useOfficial" style="margin:0">Use official count when key is present</label>
+  </div>
+
+  <button id="save">Save</button>
+  <p class="note">Key never leaves your browser except to Anthropic’s own token endpoint. No analytics.</p>
+
+  <script src="src/popup.js"></script>
+</body>
+</html>
