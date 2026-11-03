@@ -1,16 +1,22 @@
 # Changelog
 
-## 1.0.1
+## 1.0.0 (public)
 
-- Official counts go through the background service worker (fixes missing API host permission)
-- Added `https://api.anthropic.com/*` host permission
-- Stopped stacking MutationObservers when Claude’s SPA re-renders
-- Better fallback when the default composer selector is missing
-- Popup API key field is password type
-- Web dashboard: auto model suggestion, optimizer, cost/context pages, honest usage page
+First public package.
 
-## 1.0.0
+### Extension
+- Live token estimate above the Claude composer (claude.ai only)
+- Local estimate by default
+- Optional official Anthropic `count_tokens` via background worker + your API key
+- Settings in popup (model, key, official toggle)
+- Privacy, disclaimer, terms, security docs
 
-- First public cut
-- Live estimate above Claude composer
-- Popup: model + optional key
+### Web (`web/`)
+- Dashboard shell: Overview, counter, files (text), optimizer, cost, context, settings, usage, legal
+- Auto model suggestion (heuristic)
+- Honest “subscription usage unavailable” messaging
+
+### Known limits
+- No Claude Pro/Max subscription meter via API key
+- Attachment file tokens in the bar still 0
+- PDF/DOCX parsers not fully wired
