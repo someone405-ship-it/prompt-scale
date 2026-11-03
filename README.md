@@ -4,28 +4,30 @@ Small Chrome extension (and optional web tools) that estimates how many tokens y
 
 Only runs on [claude.ai](https://claude.ai).
 
+**Unofficial.** Not affiliated with Anthropic.
+
 ---
 
 ## Download
 
-**Full source ZIP (use this):**  
+**Full source ZIP:**  
 https://github.com/someone405-ship-it/prompt-scale/archive/refs/heads/main.zip
 
-**Or clone:**
+**Clone:**
 ```bash
 git clone https://github.com/someone405-ship-it/prompt-scale.git
 ```
 
 Repo: https://github.com/someone405-ship-it/prompt-scale
 
-Step-by-step: [INSTALL.md](INSTALL.md)
-
 ### Load in Chrome
 
-1. Unzip (or clone)
+1. Unzip or clone
 2. `chrome://extensions` → Developer mode on
 3. **Load unpacked** → folder that has `manifest.json`
 4. Open Claude → bar shows above the message box
+
+More detail: [INSTALL.md](INSTALL.md)
 
 ---
 
@@ -54,8 +56,12 @@ cd web && npm install && npm run dev
 
 - [INSTALL.md](INSTALL.md)
 - [PRIVACY.md](PRIVACY.md)
+- [DISCLAIMER.md](DISCLAIMER.md)
+- [TERMS.md](TERMS.md)
+- [SECURITY.md](SECURITY.md)
 - [CHANGELOG.md](CHANGELOG.md)
+- [LICENSE](LICENSE) (MIT)
 
 ## License
 
-MIT
+MIT — provided **as is**, no warranty.
