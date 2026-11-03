@@ -1,9 +1,7 @@
 /**
  * Prompt Scale – content script
- * Injects a plain counter above the Claude composer.
- * Only runs on claude.ai. Does not touch other sites.
+ * Injects a counter above the Claude composer. Claude.ai only.
  */
-
 (function () {
   "use strict";
 
@@ -16,41 +14,52 @@
   let useOfficial = false;
   let apiKey = null;
   let fileTokens = 0;
-  let fileList = [];
+  let observedComposer = null;
+  let composerObserver = null;
 
-  // Rough local estimate. Claude is not OpenAI; this is only a stand-in.
-  // Real count needs the official endpoint + key.
   function estimateTokens(text) {
     if (!text || !text.trim()) return 0;
-    // Typical English: ~3.5–4.5 chars per token. Use 4 as midpoint.
-    const chars = text.length;
-    return Math.max(1, Math.round(chars / 4));
+    return Math.max(1, Math.round(text.length / 4));
   }
 
   function findComposer() {
     const candidates = [
       'div[contenteditable="true"].ProseMirror',
-      'div[contenteditable="true"][data-testid]',
       'div.ProseMirror[contenteditable="true"]',
       '[data-testid="chat-input"] div[contenteditable="true"]',
       'fieldset div[contenteditable="true"]',
-      'div[contenteditable="true"][role="textbox"]'
+      'div[contenteditable="true"][role="textbox"]',
+      'div[contenteditable="true"][data-testid]',
     ];
     for (const sel of candidates) {
       const el = document.querySelector(sel);
       if (el && el.isContentEditable) return el;
     }
-    return null;
+    const all = document.querySelectorAll('div[contenteditable="true"]');
+    let best = null;
+    let bestArea = 0;
+    all.forEach((el) => {
+      const r = el.getBoundingClientRect();
+      const area = r.width * r.height;
+      if (area > bestArea && r.width > 100) {
+        bestArea = area;
+        best = el;
+      }
+    });
+    return best;
   }
 
   function findComposerContainer(composer) {
     if (!composer) return null;
     let node = composer;
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < 10; i++) {
       if (!node.parentElement) break;
       node = node.parentElement;
-      if (node.tagName === "FIELDSET" || (node.getAttribute("data-testid") || "").includes("input") ||
-          (node.classList && node.classList.contains("flex"))) {
+      if (
+        node.tagName === "FIELDSET" ||
+        (node.getAttribute("data-testid") || "").includes("input") ||
+        (node.classList && node.classList.contains("flex") && node.offsetHeight < 400)
+      ) {
         return node;
       }
     }
@@ -67,25 +76,22 @@
     if (root) return root;
     root = document.createElement("div");
     root.id = ROOT_ID;
-    root.innerHTML = `
-      <div class="ps-bar">
-        <span>prompt <strong id="ps-prompt">0</strong></span>
-        <span class="ps-files">files <strong id="ps-files">0</strong></span>
-        <span>total <strong id="ps-total">0</strong></span>
-        <span class="ps-meta" id="ps-meta">estimate · local</span>
-        <span class="ps-warn ps-hidden" id="ps-warn"></span>
-      </div>
-    `;
+    root.innerHTML =
+      '<div class="ps-bar">' +
+      '<span>prompt <strong id="ps-prompt">0</strong></span>' +
+      '<span class="ps-files">files <strong id="ps-files">0</strong></span>' +
+      '<span>total <strong id="ps-total">0</strong></span>' +
+      '<span class="ps-meta" id="ps-meta">estimate · local</span>' +
+      "</div>";
     return root;
   }
 
   function placeBar() {
+    if (document.getElementById(ROOT_ID)) return true;
     const composer = findComposer();
     if (!composer) return false;
-    const root = createBar();
-    if (document.getElementById(ROOT_ID) && root.parentElement) return true;
     const container = findComposerContainer(composer);
-    if (!container) return false;
+    const root = createBar();
     if (container.parentElement) {
       container.parentElement.insertBefore(root, container);
     } else {
@@ -101,32 +107,41 @@
     const m = document.getElementById("ps-meta");
     if (!p) return;
     p.textContent = promptTokens.toLocaleString();
-    f.textContent = fileTokens.toLocaleString();
-    t.textContent = (promptTokens + fileTokens).toLocaleString();
-    m.textContent = methodLabel;
+    if (f) f.textContent = fileTokens.toLocaleString();
+    if (t) t.textContent = (promptTokens + fileTokens).toLocaleString();
+    if (m) m.textContent = methodLabel;
   }
 
-  async function countOfficial(text) {
-    if (!apiKey || !text) return null;
-    try {
-      const res = await fetch("https://api.anthropic.com/v1/messages/count_tokens", {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-          "x-api-key": apiKey,
-          "anthropic-version": "2023-06-01"
-        },
-        body: JSON.stringify({
-          model: currentModel,
-          messages: [{ role: "user", content: text }]
-        })
-      });
-      if (!res.ok) return null;
-      const data = await res.json();
-      return typeof data.input_tokens === "number" ? data.input_tokens : null;
-    } catch {
-      return null;
-    }
+  function countOfficial(text) {
+    return new Promise((resolve) => {
+      if (!apiKey || !text) {
+        resolve(null);
+        return;
+      }
+      try {
+        chrome.runtime.sendMessage(
+          {
+            type: "count_tokens",
+            apiKey: apiKey,
+            model: currentModel,
+            text: text,
+          },
+          (resp) => {
+            if (chrome.runtime.lastError) {
+              resolve(null);
+              return;
+            }
+            if (resp && resp.ok && typeof resp.tokens === "number") {
+              resolve(resp.tokens);
+            } else {
+              resolve(null);
+            }
+          }
+        );
+      } catch {
+        resolve(null);
+      }
+    });
   }
 
   async function refresh() {
@@ -134,15 +149,17 @@
     const text = getComposerText(composer);
     let promptTokens = estimateTokens(text);
     let method = "estimate · local";
+
     if (useOfficial && apiKey && text) {
       const official = await countOfficial(text);
       if (official !== null) {
         promptTokens = official;
-        method = "official · " + currentModel.replace("claude-", "");
+        method = "official · " + String(currentModel).replace("claude-", "");
       } else {
         method = "estimate · key failed";
       }
     }
+
     updateDisplay(promptTokens, method);
   }
 
@@ -154,26 +171,48 @@
   function observeComposer() {
     const composer = findComposer();
     if (!composer) return;
-    const mo = new MutationObserver(scheduleRefresh);
-    mo.observe(composer, { childList: true, characterData: true, subtree: true });
+    if (observedComposer === composer) return;
+
+    if (composerObserver) {
+      try {
+        composerObserver.disconnect();
+      } catch (_) {}
+    }
+    observedComposer = composer;
+    composerObserver = new MutationObserver(scheduleRefresh);
+    composerObserver.observe(composer, {
+      childList: true,
+      characterData: true,
+      subtree: true,
+    });
     composer.addEventListener("input", scheduleRefresh, { passive: true });
     composer.addEventListener("keyup", scheduleRefresh, { passive: true });
-    composer.addEventListener("paste", () => setTimeout(scheduleRefresh, 50), { passive: true });
+    composer.addEventListener(
+      "paste",
+      function () {
+        setTimeout(scheduleRefresh, 50);
+      },
+      { passive: true }
+    );
   }
 
   function loadSettings() {
-    chrome.storage.local.get(["ps_api_key", "ps_model", "ps_use_official"], (data) => {
-      apiKey = data.ps_api_key || null;
-      currentModel = data.ps_model || "claude-sonnet-5-5";
-      useOfficial = !!data.ps_use_official && !!apiKey;
-      scheduleRefresh();
-    });
+    chrome.storage.local.get(
+      ["ps_api_key", "ps_model", "ps_use_official"],
+      function (data) {
+        apiKey = data.ps_api_key || null;
+        currentModel = data.ps_model || "claude-sonnet-5-5";
+        useOfficial = !!data.ps_use_official && !!apiKey;
+        scheduleRefresh();
+      }
+    );
   }
 
   function boot() {
     if (!location.hostname.includes("claude.ai")) return;
+
     let tries = 0;
-    const interval = setInterval(() => {
+    const interval = setInterval(function () {
       tries++;
       if (placeBar()) {
         clearInterval(interval);
@@ -181,15 +220,21 @@
         loadSettings();
         scheduleRefresh();
       }
-      if (tries > 40) clearInterval(interval);
+      if (tries > 50) clearInterval(interval);
     }, 400);
-    const bodyObs = new MutationObserver(() => {
+
+    const bodyObs = new MutationObserver(function () {
       if (!document.getElementById(ROOT_ID)) {
-        placeBar();
+        if (placeBar()) {
+          observeComposer();
+        }
+      } else {
         observeComposer();
       }
     });
-    bodyObs.observe(document.body, { childList: true, subtree: true });
+    if (document.body) {
+      bodyObs.observe(document.body, { childList: true, subtree: true });
+    }
   }
 
   if (document.readyState === "loading") {
@@ -198,7 +243,7 @@
     boot();
   }
 
-  chrome.storage.onChanged.addListener((changes, area) => {
+  chrome.storage.onChanged.addListener(function (changes, area) {
     if (area === "local") loadSettings();
   });
 })();
