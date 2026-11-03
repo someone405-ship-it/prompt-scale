@@ -1,67 +1,72 @@
-# Prompt Scale
+# Prompt Scale 1.0.0
 
-Small Chrome extension (and optional web tools) that estimates how many tokens your text would use with Claude.
+Unofficial Chrome extension that estimates tokens for text you type on [claude.ai](https://claude.ai).
 
-Only runs on [claude.ai](https://claude.ai).
-
-**Unofficial.** Not affiliated with Anthropic.
+**Not affiliated with Anthropic.**
 
 ---
 
 ## Download
 
-**Full source ZIP:**  
-https://github.com/someone405-ship-it/prompt-scale/archive/refs/heads/main.zip
+**Source ZIP:** https://github.com/someone405-ship-it/prompt-scale/archive/refs/heads/main.zip
 
-**Clone:**
 ```bash
 git clone https://github.com/someone405-ship-it/prompt-scale.git
 ```
 
-Repo: https://github.com/someone405-ship-it/prompt-scale
-
-### Load in Chrome
+### Install extension
 
 1. Unzip or clone
-2. `chrome://extensions` → Developer mode on
-3. **Load unpacked** → folder that has `manifest.json`
-4. Open Claude → bar shows above the message box
+2. Chrome → `chrome://extensions` → Developer mode
+3. **Load unpacked** → folder with `manifest.json`
+4. Open Claude → counter appears above the input
 
-More detail: [INSTALL.md](INSTALL.md)
+[INSTALL.md](INSTALL.md)
 
 ---
 
-## What it does
+## Features (1.0.0)
 
-- Watches the text in Claude’s composer
-- Shows a rough token estimate (chars ÷ 4) by default
-- Optional official count if you paste your Anthropic API key in the popup
-- Key stays on your machine; only goes to Anthropic’s count endpoint when you opt in
+| Feature | Status |
+|--------|--------|
+| Live count above Claude composer | Yes |
+| Local estimate | Yes |
+| Official count with your API key | Yes |
+| Claude.ai only | Yes |
+| Privacy / disclaimer / terms | Yes |
+| Web dashboard (`web/`) | Yes (local run) |
+| Pro/Max usage meter | No (not available via normal API key) |
+| Full PDF/DOCX parse | Not in 1.0.0 |
 
-## What it does not do
-
-- No Pro/Max usage meter (Anthropic doesn’t give that to third-party apps via a normal key)
-- No auto-send, no history scraping, no other AI sites
-- File total in the bar is still 0 until attachment parsing lands
-
-## Web folder
-
-`web/` is a Next.js dashboard: calculator, model suggestion, text file drop, cost math, local optimizer.
-
-```bash
-cd web && npm install && npm run dev
-```
+---
 
 ## Docs
 
-- [INSTALL.md](INSTALL.md)
-- [PRIVACY.md](PRIVACY.md)
-- [DISCLAIMER.md](DISCLAIMER.md)
-- [TERMS.md](TERMS.md)
-- [SECURITY.md](SECURITY.md)
-- [CHANGELOG.md](CHANGELOG.md)
-- [LICENSE](LICENSE) (MIT)
+| File | Topic |
+|------|--------|
+| [INSTALL.md](INSTALL.md) | Install |
+| [PRIVACY.md](PRIVACY.md) | Privacy |
+| [DISCLAIMER.md](DISCLAIMER.md) | Not affiliated, estimates, liability |
+| [TERMS.md](TERMS.md) | Terms of use |
+| [SECURITY.md](SECURITY.md) | Security |
+| [NOTICE.md](NOTICE.md) | Trademarks |
+| [CHANGELOG.md](CHANGELOG.md) | Changes |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Contributions |
+| [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) | Conduct |
+| [LICENSE](LICENSE) | MIT |
+
+---
+
+## Web app
+
+```bash
+cd web
+npm install
+npm run dev
+```
+
+---
 
 ## License
 
-MIT — provided **as is**, no warranty.
+MIT — provided **as is**.
