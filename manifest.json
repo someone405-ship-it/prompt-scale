@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Prompt Scale",
-  "version": "1.0.0",
-  "description": "Token estimate for text you type on claude.ai. Local by default; optional official count with your Anthropic key. Unofficial, not affiliated with Anthropic.",
+  "version": "1.1.0",
+  "description": "Token estimate on claude.ai. Anthropic official count optional. Store OpenAI/Groq/OpenRouter keys locally. Unofficial.",
   "action": {
     "default_popup": "popup.html",
     "default_title": "Prompt Scale"
