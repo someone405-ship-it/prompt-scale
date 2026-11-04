@@ -4,55 +4,96 @@
   <meta charset="UTF-8" />
   <title>Prompt Scale</title>
   <style>
+    * { box-sizing: border-box; }
     body {
-      width: 300px;
+      width: 320px;
       margin: 0;
-      padding: 14px 16px;
+      padding: 16px 16px 14px;
       font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
       font-size: 13px;
       color: #141413;
       background: #faf9f5;
     }
-    h1 { font-size: 15px; font-weight: 600; margin: 0 0 10px 0; }
-    p { margin: 0 0 10px 0; color: #5e5d59; line-height: 1.4; }
-    label { display: block; margin-top: 12px; font-size: 12px; color: #3d3d3a; }
+    .header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .mark {
+      width: 32px; height: 32px; border-radius: 8px; background: #141413;
+      flex-shrink: 0; display: grid; place-items: center;
+    }
+    .header h1 { margin: 0; font-size: 15px; font-weight: 650; }
+    .header p { margin: 2px 0 0; font-size: 11px; color: #5e5d59; }
+    label {
+      display: block; margin-top: 10px; margin-bottom: 4px;
+      font-size: 11px; font-weight: 600; color: #5e5d59;
+    }
     input[type="password"], input[type="text"], select {
-      width: 100%; margin-top: 4px; padding: 6px 8px;
-      border: 1px solid #e3dacc; border-radius: 4px; background: #fff; font-size: 13px;
+      width: 100%; padding: 9px 10px; border: 1px solid #e3dacc;
+      border-radius: 8px; background: #fff; font-size: 13px; color: #141413; outline: none;
     }
-    .row { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
-    button {
-      margin-top: 14px; width: 100%; padding: 8px;
-      border: 1px solid #141413; border-radius: 4px;
-      background: #141413; color: #faf9f5; font-size: 13px; cursor: pointer;
+    input:focus, select:focus {
+      border-color: #c96442;
+      box-shadow: 0 0 0 2px rgba(201, 100, 66, 0.15);
     }
-    button:hover { opacity: 0.9; }
-    .note { margin-top: 12px; font-size: 11px; color: #87867f; }
+    .hint { margin: 4px 0 0; font-size: 11px; color: #87867f; line-height: 1.35; }
+    .check {
+      display: flex; align-items: flex-start; gap: 8px; margin-top: 12px;
+      font-size: 12px; color: #3d3d3a; line-height: 1.35;
+    }
+    button#save {
+      margin-top: 14px; width: 100%; padding: 10px; border: none;
+      border-radius: 8px; background: #141413; color: #faf9f5;
+      font-size: 13px; font-weight: 650; cursor: pointer;
+    }
+    button#save:hover { background: #2a2a28; }
+    button#save.ok { background: #c96442; }
+    button#save.err { background: #8b3a2a; }
+    .notes { margin-top: 12px; font-size: 10px; color: #87867f; line-height: 1.4; }
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
-  <h1>Prompt Scale</h1>
-  <p>Local estimate of tokens for the text you type on claude.ai. Optional official count if you paste your own Anthropic key.</p>
-
-  <label for="model">Model for official count</label>
-  <select id="model">
-    <option value="claude-sonnet-5-5">Sonnet 5.5</option>
-    <option value="claude-opus-5-5">Opus 5.5</option>
-    <option value="claude-haiku-5-5">Haiku 5.5</option>
-    <option value="claude-fable-5-1">Fable 5.1</option>
-  </select>
-
-  <label for="key">Anthropic API key (optional, stored only on this computer)</label>
-  <input type="password" id="key" placeholder="sk-ant-..." autocomplete="off" />
-
-  <div class="row">
-    <input type="checkbox" id="useOfficial" />
-    <label for="useOfficial" style="margin:0">Use official count when key is present</label>
+  <div class="header">
+    <div class="mark" aria-hidden="true">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <rect x="2" y="4" width="14" height="2" rx="1" fill="#C96442"/>
+        <rect x="8" y="6" width="2" height="7" rx="0.5" fill="#FAF9F5"/>
+        <circle cx="5" cy="13" r="2.2" fill="#C96442"/>
+        <circle cx="13" cy="13" r="2.2" fill="#FAF9F5"/>
+      </svg>
+    </div>
+    <div>
+      <h1>Prompt Scale</h1>
+      <p>claude.ai token estimate</p>
+    </div>
   </div>
-
-  <button id="save">Save</button>
-  <p class="note">Key never leaves your browser except to Anthropic’s own token endpoint. No analytics.</p>
-
+  <label for="provider">Provider</label>
+  <select id="provider">
+    <option value="anthropic">Anthropic — official count</option>
+    <option value="openai">OpenAI</option>
+    <option value="groq">Groq</option>
+    <option value="openrouter">OpenRouter</option>
+    <option value="custom">Custom OpenAI-compatible</option>
+  </select>
+  <p class="hint" id="providerHint">Official count uses Anthropic’s count_tokens API.</p>
+  <label for="key">API key</label>
+  <input type="password" id="key" placeholder="sk-… / gsk-…" autocomplete="off" spellcheck="false" />
+  <label for="customBase" id="customBaseLabel" class="hidden">API base URL</label>
+  <input type="text" id="customBase" class="hidden" placeholder="https://api.example.com/v1" autocomplete="off" />
+  <label for="model">Model (Anthropic official count)</label>
+  <select id="model">
+    <option value="claude-sonnet-5-5">claude-sonnet-5-5</option>
+    <option value="claude-opus-5-5">claude-opus-5-5</option>
+    <option value="claude-haiku-5-5">claude-haiku-5-5</option>
+    <option value="claude-fable-5-1">claude-fable-5-1</option>
+  </select>
+  <label class="check">
+    <input type="checkbox" id="useOfficial" />
+    <span>Prefer official count when Anthropic key is set</span>
+  </label>
+  <button type="button" id="save">Save</button>
+  <p class="notes">
+    Keys stay on this device. Only Anthropic official count sends text to api.anthropic.com.
+    Unofficial · MIT as-is.
+  </p>
   <script src="src/popup.js"></script>
 </body>
 </html>
