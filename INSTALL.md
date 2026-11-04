@@ -1,44 +1,51 @@
 # Install
 
-## Extension (Chrome / Edge / Brave / Arc)
+## Chrome / Edge / Brave (Windows, Mac, Linux)
 
-### Option A — download whole repo as ZIP
+### Important (this is the usual failure)
 
-1. Open https://github.com/someone405-ship-it/prompt-scale/archive/refs/heads/main.zip
-2. Unzip
-3. Open `chrome://extensions`
-4. Enable **Developer mode**
-5. **Load unpacked** → select the folder that contains `manifest.json` (not the `web/` folder)
-6. Open https://claude.ai and start a chat
+After unzip, you must select the folder that **directly contains** `manifest.json`.
 
-### Option B — git clone
-
-```bash
-git clone https://github.com/someone405-ship-it/prompt-scale.git
+Wrong:
+```
+Downloads/prompt-scale-main     ← sometimes this is only a wrapper
 ```
 
-Then Load unpacked → that folder.
+Right: open that folder and check you see `manifest.json` in the list, then select **that** folder.
 
-The counter is a small bar above the input. If you don’t see it, refresh the tab once.
+If you see:
+```
+prompt-scale-main/
+  prompt-scale-main/
+    manifest.json
+```
+select the **inner** `prompt-scale-main` folder.
+
+### Steps
+
+1. Download the extension ZIP from the release artifacts or clone the repo
+2. Unzip completely (not open the zip as a folder in some browsers)
+3. Open `chrome://extensions` (or `edge://extensions`)
+4. Enable **Developer mode**
+5. **Load unpacked**
+6. Choose the folder where `manifest.json` is visible next to `popup.html` and `src/`
+7. Open https://claude.ai and refresh the page
 
 ### Optional official counts
 
 1. Click the extension icon
-2. Paste an Anthropic API key
-3. Check “Use official count when key is present”
+2. Paste Anthropic API key
+3. Check “Use official count”
 4. Save
 
-## Web dashboard
+### Web dashboard
 
 ```bash
-git clone https://github.com/someone405-ship-it/prompt-scale.git
-cd prompt-scale/web
+cd web
 npm install
 npm run dev
 ```
 
-Requires Node 18+.
+### Uninstall
 
-## Uninstall
-
-Extensions page → Remove. That also drops stored keys for the extension.
+Extensions page → Remove.
