@@ -1,22 +1,23 @@
 # Changelog
 
-## 1.0.0 (public)
+## 1.3.0 (final)
 
-First public package.
+- Dark popup UI + scale logo icons
+- Provider switch updates model list (Anthropic, OpenAI, Groq, OpenRouter, custom)
+- No checkbox — counting runs automatically
+- File token estimate in popup (text parse + size-based for binary)
+- Anthropic key → token API when available; otherwise local predict
+- Hardened content script (SPA, timeouts, safe fallbacks)
+- Package always includes icons + manifest
 
-### Extension
-- Live token estimate above the Claude composer (claude.ai only)
-- Local estimate by default
-- Optional official Anthropic `count_tokens` via background worker + your API key
-- Settings in popup (model, key, official toggle)
-- Privacy, disclaimer, terms, security docs
+## 1.2.0
 
-### Web (`web/`)
-- Dashboard shell: Overview, counter, files (text), optimizer, cost, context, settings, usage, legal
-- Auto model suggestion (heuristic)
-- Honest “subscription usage unavailable” messaging
+- Dark theme
 
-### Known limits
-- No Claude Pro/Max subscription meter via API key
-- Attachment file tokens in the bar still 0
-- PDF/DOCX parsers not fully wired
+## 1.1.x
+
+- Multi-provider key storage
+
+## 1.0.0
+
+- First public Claude composer estimate
